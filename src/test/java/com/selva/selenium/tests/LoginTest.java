@@ -5,6 +5,7 @@ import java.time.Duration;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.chrome.ChromeOptions;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.DataProvider;
@@ -22,9 +23,15 @@ public class LoginTest {
 
     @BeforeMethod
     void setup() {
+        ChromeOptions options = new ChromeOptions();
+
+        options.addArguments("--headless=new");
+        options.addArguments("--no-sandbox");
+        options.addArguments("--disable-dev-shm-usage");
+        options.addArguments("--window-size=1920,1080");
 
         // driver = new ChromeDriver();
-        driver.set(new ChromeDriver());
+        driver.set(new ChromeDriver(options));
         driver.get().manage().timeouts().implicitlyWait(Duration.ofSeconds(10));
         driver.get().manage().window().maximize();
         System.out.println(
@@ -38,7 +45,7 @@ public class LoginTest {
                 // {"locked_out_user", "secret_sauce"},
                 { "problem_user", "secret_sauce", "successful login" },
                 { "performance_glitch_user", "secret_sauce", "successful login" },
-                {"locked_out_user", "secret_sauce", "login failure"}
+                { "locked_out_user", "secret_sauce", "login failure" }
         };
     }
 
@@ -58,22 +65,18 @@ public class LoginTest {
         // "Page title is not displayed after login");
         if (expectedResult.equals("successful login")) {
             Assert.assertTrue(productPage.isProductTitleDisplayed(), "Page title is not displayed after login");
-        productPage.addBackPackToCart();
-        cartPage.clickCart();
-        Assert.assertTrue(cartPage.isBackpackDisplayed(), "Sauce Labs Backpack was not added to the cart");
+            productPage.addBackPackToCart();
+            cartPage.clickCart();
+            Assert.assertTrue(cartPage.isBackpackDisplayed(), "Sauce Labs Backpack was not added to the cart");
 
-    }
-        else if (expectedResult.equals("login failure"))
-             {
+        } else if (expectedResult.equals("login failure")) {
 
-    Assert.assertEquals(
-        loginPage.getErrorMessage(),
-        "Epic sadface: Sorry, this user has been locked out.",
-        "Expected login failure message was not displayed"
-    );
+            Assert.assertEquals(
+                    loginPage.getErrorMessage(),
+                    "Epic sadface: Sorry, this user has been locked out.",
+                    "Expected login failure message was not displayed");
         }
     }
-       
 
     @Test(enabled = false)
     public void lockedOutUserTest() {
@@ -102,4 +105,3 @@ public class LoginTest {
                 "Browser closed | Thread ID: " + Thread.currentThread().getId());
     }
 }
-
